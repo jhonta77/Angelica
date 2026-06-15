@@ -105,8 +105,9 @@ En producción:
    ```
    (En Windows/IIS o PythonAnywhere se configura el WSGI según el proveedor.)
 2. Define variables de entorno `SECRET_KEY` y `GOOGLE_MAPS_API_KEY`.
-3. Apunta tu dominio al hosting. La llave de Maps va restringida a tu dominio.
-4. Cambia `ADMIN_PASSWORD` por una contraseña fuerte.
+3. En Easypanel, monta volúmenes persistentes para `/app/data` y `/app/media`.
+4. Apunta tu dominio al hosting. La llave de Maps va restringida a tu dominio.
+5. Cambia `ADMIN_PASSWORD` por una contraseña fuerte.
 
 ## 📌 Fuera de alcance (fase futura, según el brief)
 
