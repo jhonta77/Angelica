@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Reserva recibida{% endblock %}
+
+{% block content %}
+<section class="confirm">
+  <div class="container confirm__inner reveal">
+    <div class="confirm__check">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+    </div>
+    <h1>{{ t('conf.title') }}</h1>
+    <p class="confirm__lead">{{ t('conf.lead') }}</p>
+    <div class="confirm__actions">
+      <a class="btn btn--gold" href="https://wa.me/{{ NEGOCIO.whatsapp }}" target="_blank" rel="noopener">{{ t('conf.whatsapp') }}</a>
+      <a class="btn btn--ghost-dark" href="{{ url_for('index') }}">{{ t('conf.back') }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

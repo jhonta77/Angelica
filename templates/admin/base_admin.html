@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set hide_chrome = true %}
+
+{% block head_extra %}{% endblock %}
+
+{% block content %}
+<div class="admin">
+  <aside class="admin__side">
+    <a class="admin__brand" href="{{ url_for('index') }}">
+      <span class="nav__logo">{{ NEGOCIO.nombre[0] }}</span>
+      <span>{{ NEGOCIO.nombre }}</span>
+    </a>
+    <nav class="admin__nav">
+      <a href="{{ url_for('admin_reservas') }}" class="{{ 'is-active' if active=='reservas' }}">Reservas</a>
+      <a href="{{ url_for('admin_servicios') }}" class="{{ 'is-active' if active=='servicios' }}">Servicios</a>
+      <a href="{{ url_for('admin_ubicaciones') }}" class="{{ 'is-active' if active=='ubicaciones' }}">Ubicaciones</a>
+      <a href="{{ url_for('index') }}" target="_blank">Ver sitio ↗</a>
+    </nav>
+    <a class="admin__logout" href="{{ url_for('admin_logout') }}">Cerrar sesión</a>
+  </aside>
+
+  <div class="admin__main">
+    <header class="admin__topbar">
+      <h1>{% block admin_title %}{% endblock %}</h1>
+      {% block admin_actions %}{% endblock %}
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="admin__flashes">
+        {% for cat, msg in messages %}
+          <div class="flash flash--{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="admin__content">
+      {% block admin_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

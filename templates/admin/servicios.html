@@ -1,0 +1,45 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'servicios' %}
+{% block title %}Servicios{% endblock %}
+{% block admin_title %}Servicios{% endblock %}
+
+{% block admin_actions %}
+<a class="btn btn--gold" href="{{ url_for('admin_servicio_nuevo') }}">+ Nuevo servicio</a>
+{% endblock %}
+
+{% block admin_content %}
+{% if servicios %}
+<div class="svc-grid">
+  {% for s in servicios %}
+  <article class="svc-card {{ 'svc-card--off' if not s['activo'] }}">
+    <div class="svc-card__media">
+      {% if s['imagen'] %}
+        <img src="{{ url_for('media', filename=s['imagen']) }}" alt="{{ s['nombre'] }}"
+             onerror="this.parentElement.classList.add('card__media--empty');this.remove();" />
+      {% else %}
+        <span class="card__placeholder">Sin foto</span>
+      {% endif %}
+      {% if not s['activo'] %}<span class="svc-card__badge">Inactivo</span>{% endif %}
+    </div>
+    <div class="svc-card__body">
+      <h3>{{ s['nombre'] }}</h3>
+      <p class="muted">{{ s['descripcion'][:90] }}{{ '…' if s['descripcion']|length > 90 }}</p>
+      <p class="svc-card__meta">{{ s['capacidad_min'] }}–{{ s['capacidad_max'] }} pax · {{ s['max_maletas'] }} maletas</p>
+      <div class="svc-card__actions">
+        <a class="btn btn--dark btn--sm" href="{{ url_for('admin_servicio_editar', sid=s['id']) }}">Editar</a>
+        <form method="post" action="{{ url_for('admin_servicio_eliminar', sid=s['id']) }}"
+              onsubmit="return confirm('¿Eliminar el servicio «{{ s['nombre'] }}»?');">
+          <button class="btn btn--danger btn--sm">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p>No hay servicios. Crea el primero.</p>
+  <a class="btn btn--gold" href="{{ url_for('admin_servicio_nuevo') }}">+ Nuevo servicio</a>
+</div>
+{% endif %}
+{% endblock %}

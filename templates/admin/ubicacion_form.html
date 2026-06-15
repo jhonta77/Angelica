@@ -1,0 +1,71 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'ubicaciones' %}
+{% block title %}{{ 'Editar' if ubicacion else 'Nueva' }} ubicación{% endblock %}
+{% block admin_title %}{{ 'Editar ubicación' if ubicacion else 'Nueva ubicación' }}{% endblock %}
+
+{% block admin_content %}
+<form class="svc-form" method="post"
+      action="{{ url_for('admin_ubicacion_editar', uid=ubicacion['id']) if ubicacion else url_for('admin_ubicacion_nueva') }}">
+  <div class="grid grid--2">
+    <label class="field field--full">
+      <span>Nombre *</span>
+      <input type="text" name="nombre" required value="{{ ubicacion['nombre'] if ubicacion else '' }}"
+             placeholder="Ej. Aeropuerto José María Córdova" />
+    </label>
+
+    <label class="field field--full">
+      <span>Dirección / referencia</span>
+      <input type="text" name="direccion" value="{{ ubicacion['direccion'] if ubicacion else '' }}"
+             placeholder="Ej. Rionegro, Antioquia" />
+    </label>
+
+    <label class="field">
+      <span>Latitud</span>
+      <input type="text" name="lat" id="lat" value="{{ ubicacion['lat'] if ubicacion and ubicacion['lat'] is not none else '' }}"
+             placeholder="6.1645" />
+    </label>
+    <label class="field">
+      <span>Longitud</span>
+      <input type="text" name="lng" id="lng" value="{{ ubicacion['lng'] if ubicacion and ubicacion['lng'] is not none else '' }}"
+             placeholder="-75.4231" />
+    </label>
+
+    <div class="field field--full">
+      <button type="button" class="btn btn--ghost-dark btn--sm" id="btnUbicAqui">📍 Usar mi ubicación actual</button>
+      <small class="field__hint">Captura las coordenadas de tu GPS (útil si estás en el lugar). También puedes copiarlas de Google Maps (clic derecho → coordenadas).</small>
+    </div>
+
+    <label class="field">
+      <span>Orden de aparición</span>
+      <input type="number" name="orden" value="{{ ubicacion['orden'] if ubicacion else 0 }}" />
+    </label>
+
+    <label class="check field--full">
+      <input type="checkbox" name="activo" {% if (ubicacion and ubicacion['activo']) or not ubicacion %}checked{% endif %} />
+      <span>Activa (visible en el formulario de reserva)</span>
+    </label>
+  </div>
+
+  <div class="svc-form__actions">
+    <button type="submit" class="btn btn--gold">{{ 'Guardar cambios' if ubicacion else 'Crear ubicación' }}</button>
+    <a class="btn btn--ghost-dark" href="{{ url_for('admin_ubicaciones') }}">Cancelar</a>
+  </div>
+</form>
+
+<script>
+  document.getElementById('btnUbicAqui').addEventListener('click', function () {
+    if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización.'); return; }
+    this.textContent = 'Obteniendo ubicación…';
+    var btn = this;
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('lng').value = pos.coords.longitude.toFixed(6);
+        btn.textContent = '✓ Ubicación capturada';
+      },
+      function () { alert('No se pudo obtener la ubicación. Revisa los permisos.'); btn.textContent = '📍 Usar mi ubicación actual'; },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+</script>
+{% endblock %}

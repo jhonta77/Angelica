@@ -1,0 +1,95 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'reservas' %}
+{% block title %}Reservas{% endblock %}
+{% block admin_title %}Reservas{% endblock %}
+
+{% block admin_content %}
+<div class="filters">
+  <a class="chip {{ 'is-active' if not filtro_estado }}" href="{{ url_for('admin_reservas') }}">
+    Todas <b>{{ total }}</b>
+  </a>
+  {% for e in estados %}
+  <a class="chip chip--{{ e }} {{ 'is-active' if filtro_estado == e }}"
+     href="{{ url_for('admin_reservas', estado=e) }}">
+    {{ e.replace('_', ' ')|capitalize }} <b>{{ conteos[e] }}</b>
+  </a>
+  {% endfor %}
+</div>
+
+{% if reservas %}
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Fecha / Hora</th>
+        <th>Cliente</th>
+        <th>Servicio</th>
+        <th>Trayecto</th>
+        <th>Pax/Mal.</th>
+        <th>Vuelo</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reservas %}
+      <tr>
+        <td class="muted">{{ r['id'] }}</td>
+        <td>
+          <strong>{{ r['fecha_servicio'] }}</strong><br />
+          <span class="muted">{{ r['hora_recogida'] }}</span>
+        </td>
+        <td>
+          <strong>{{ r['cliente_nombre'] }}</strong><br />
+          <a href="https://wa.me/{{ (r['prefijo_pais'] ~ r['telefono'])|replace('+','')|replace(' ','') }}"
+             target="_blank" rel="noopener" class="link-wa">
+            {{ r['prefijo_pais'] }} {{ r['telefono'] }}
+          </a>
+          {% if r['email'] %}<br /><span class="muted">{{ r['email'] }}</span>{% endif %}
+          {% if r['documento'] %}<br /><span class="muted">{{ r['tipo_documento'] }} {{ r['documento'] }}</span>{% endif %}
+        </td>
+        <td>{{ r['servicio_nombre'] or '—' }}</td>
+        <td class="trayecto">
+          <span class="trayecto__o" title="Recogida">{{ r['punto_recogida'] }}</span>
+          <span class="trayecto__arrow">→</span>
+          <span class="trayecto__d" title="Destino">{{ r['destino'] }}</span>
+          {% if r['recogida_lat'] and r['destino_lat'] %}
+            <a class="trayecto__map"
+               href="https://www.google.com/maps/dir/?api=1&origin={{ r['recogida_lat'] }},{{ r['recogida_lng'] }}&destination={{ r['destino_lat'] }},{{ r['destino_lng'] }}"
+               target="_blank" rel="noopener">Ver ruta</a>
+          {% endif %}
+        </td>
+        <td>{{ r['num_pasajeros'] }} / {{ r['num_maletas'] }}</td>
+        <td>
+          {% if r['numero_vuelo'] %}{{ r['numero_vuelo'] }}<br /><span class="muted">{{ r['aerolinea'] }}</span>{% else %}—{% endif %}
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_reserva_estado', rid=r['id']) }}" class="estado-form">
+            <select name="estado" onchange="this.form.submit()" class="estado-select estado--{{ r['estado'] }}">
+              {% for e in estados %}
+              <option value="{{ e }}" {% if r['estado'] == e %}selected{% endif %}>{{ e.replace('_',' ')|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </form>
+          {% if r['comentarios'] %}
+            <details class="coment"><summary>Notas</summary><p>{{ r['comentarios'] }}</p></details>
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_reserva_eliminar', rid=r['id']) }}"
+                onsubmit="return confirm('¿Eliminar esta reserva? Esta acción no se puede deshacer.');">
+            <button class="btn-icon" title="Eliminar">🗑</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <p>No hay reservas {{ 'con este estado' if filtro_estado else 'todavía' }}.</p>
+</div>
+{% endif %}
+{% endblock %}

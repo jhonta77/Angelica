@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.book') }}{% endblock %}
+
+{% block content %}
+<section class="page-head page-head--sm">
+  <div class="container">
+    <p class="eyebrow eyebrow--gold">{{ t('res.eyebrow') }}</p>
+    <h1>{{ t('res.title') }}</h1>
+    <p class="page-head__lead">{{ t('res.lead') }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container form-wrap">
+    <form class="reserva-form" method="post" action="{{ url_for('reservar') }}" novalidate
+          data-hint-pax="{{ t('res.hint_pax') }}" data-hint-luggage="{{ t('res.hint_luggage') }}"
+          data-loc-loading="{{ t('res.my_location_loading') }}" data-loc-done="{{ t('res.my_location_done') }}"
+          data-capacidades='{
+            {%- for s in servicios -%}
+            "{{ s['id'] }}": {"min": {{ s['capacidad_min'] }}, "max": {{ s['capacidad_max'] }}, "maletas": {{ s['max_maletas'] }}}{{ "," if not loop.last }}
+            {%- endfor -%}
+          }'>
+
+      <fieldset class="fs">
+        <legend>{{ t('res.step1') }}</legend>
+        <div class="grid grid--2">
+          <label class="field field--full">
+            <span>{{ t('res.service_label') }}</span>
+            <select name="servicio_id" id="servicio_id" required>
+              <option value="">{{ t('res.service_ph') }}</option>
+              {% for s in servicios %}
+              <option value="{{ s['id'] }}"
+                {% if (datos.get('servicio_id') == s['id']|string) or (preseleccion == s['id']|string) %}selected{% endif %}>
+                {{ s['nombre'] }} ({{ s['capacidad_min'] }}–{{ s['capacidad_max'] }} {{ t('res.pax_short') }})
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fs">
+        <legend>{{ t('res.step2') }}</legend>
+        <div class="grid grid--2">
+          <label class="field">
+            <span>{{ t('res.date') }}</span>
+            <input type="date" name="fecha_servicio" id="fecha_servicio" required
+                   value="{{ datos.get('fecha_servicio', '') }}" />
+          </label>
+          <label class="field">
+            <span>{{ t('res.time') }}</span>
+            <input type="time" name="hora_recogida" required value="{{ datos.get('hora_recogida', '') }}" />
+          </label>
+
+          <label class="field field--full">
+            <span>{{ t('res.pickup') }}</span>
+            {% if ubicaciones %}
+            <select id="lugares_frecuentes" class="lugares-select" aria-label="{{ t('res.pickup_choose') }}">
+              <option value="">{{ t('res.pickup_choose') }}</option>
+              {% for u in ubicaciones %}
+              <option value="{{ u['nombre'] }}{% if u['direccion'] %} — {{ u['direccion'] }}{% endif %}"
+                      data-lat="{{ u['lat'] if u['lat'] is not none else '' }}"
+                      data-lng="{{ u['lng'] if u['lng'] is not none else '' }}">{{ u['nombre'] }}</option>
+              {% endfor %}
+            </select>
+            {% endif %}
+            <div class="recogida-input">
+              <input type="text" name="punto_recogida" id="punto_recogida" required autocomplete="off"
+                     placeholder="{{ t('res.pickup_ph') }}"
+                     value="{{ datos.get('punto_recogida', '') }}" />
+              <button type="button" class="btn btn--dark btn--sm" id="btnMiUbicacion" title="{{ t('res.my_location') }}">📍 {{ t('res.my_location') }}</button>
+            </div>
+            <small class="field__hint">{{ t('res.pickup_hint') }}</small>
+            <input type="hidden" name="recogida_lat" id="recogida_lat" value="{{ datos.get('recogida_lat', '') }}" />
+            <input type="hidden" name="recogida_lng" id="recogida_lng" value="{{ datos.get('recogida_lng', '') }}" />
+          </label>
+
+          <label class="field field--full">
+            <span>{{ t('res.destination') }}</span>
+            <input type="text" name="destino" id="destino" required autocomplete="off"
+                   placeholder="{{ t('res.dest_ph') }}"
+                   value="{{ datos.get('destino', '') }}" />
+            <input type="hidden" name="destino_lat" id="destino_lat" value="{{ datos.get('destino_lat', '') }}" />
+            <input type="hidden" name="destino_lng" id="destino_lng" value="{{ datos.get('destino_lng', '') }}" />
+          </label>
+        </div>
+
+        <!-- Campos de vuelo: aparecen solo si recogida/destino es aeropuerto -->
+        <div class="grid grid--2 vuelo-block" id="vueloBlock" hidden>
+          <label class="field">
+            <span>{{ t('res.flight_no') }}</span>
+            <input type="text" name="numero_vuelo" id="numero_vuelo" placeholder="{{ t('res.flight_ph') }}"
+                   value="{{ datos.get('numero_vuelo', '') }}" />
+          </label>
+          <label class="field">
+            <span>{{ t('res.airline') }}</span>
+            <input type="text" name="aerolinea" placeholder="{{ t('res.airline_ph') }}"
+                   value="{{ datos.get('aerolinea', '') }}" />
+          </label>
+        </div>
+
+        <div class="grid grid--2">
+          <label class="field">
+            <span>{{ t('res.passengers') }}</span>
+            <input type="number" name="num_pasajeros" id="num_pasajeros" min="1" max="10" required
+                   value="{{ datos.get('num_pasajeros', '1') }}" />
+            <small class="field__hint" id="paxHint"></small>
+          </label>
+          <label class="field">
+            <span>{{ t('res.luggage') }}</span>
+            <input type="number" name="num_maletas" id="num_maletas" min="0" max="20"
+                   value="{{ datos.get('num_maletas', '0') }}" />
+            <small class="field__hint" id="maletasHint"></small>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fs">
+        <legend>{{ t('res.step3') }}</legend>
+        <div class="grid grid--2">
+          <label class="field field--full">
+            <span>{{ t('res.fullname') }}</span>
+            <input type="text" name="nombre" required minlength="3"
+                   value="{{ datos.get('nombre', '') }}" />
+          </label>
+
+          <label class="field field--prefix">
+            <span>{{ t('res.whatsapp') }}</span>
+            <div class="prefix-input">
+              <select name="prefijo_pais">
+                {% for p in ['+57', '+1', '+34', '+49', '+86', '+52', '+44', '+55'] %}
+                <option value="{{ p }}" {% if datos.get('prefijo_pais', '+57') == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+              </select>
+              <input type="tel" name="telefono" required placeholder="{{ t('res.phone_ph') }}"
+                     value="{{ datos.get('telefono', '') }}" />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>{{ t('res.email') }}</span>
+            <input type="email" name="email" placeholder="{{ t('res.email_ph') }}"
+                   value="{{ datos.get('email', '') }}" />
+          </label>
+
+          <label class="field">
+            <span>{{ t('res.doc_type') }}</span>
+            <select name="tipo_documento" required>
+              {% for td in tipos_documento %}
+              <option value="{{ td }}" {% if datos.get('tipo_documento') == td %}selected{% endif %}>{{ td }}</option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label class="field">
+            <span>{{ t('res.doc_num') }}</span>
+            <input type="text" name="documento" value="{{ datos.get('documento', '') }}" />
+          </label>
+
+          <label class="field field--full">
+            <span>{{ t('res.comments') }}</span>
+            <textarea name="comentarios" rows="3" placeholder="{{ t('res.comments_ph') }}">{{ datos.get('comentarios', '') }}</textarea>
+          </label>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn--gold btn--lg btn--block">{{ t('res.submit') }}</button>
+      <p class="form-note">{{ t('res.note') }}</p>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reserva.js') }}"></script>
+{% if GOOGLE_MAPS_API_KEY %}
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&loading=async&callback=initMapsAutocomplete">
+</script>
+{% endif %}
+{% endblock %}

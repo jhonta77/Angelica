@@ -1,0 +1,21 @@
+# Entorno virtual
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Base de datos local
+*.db
+
+# Imágenes subidas (conserva las descripciones, ignora fotos reales)
+media/*
+!media/_DESCRIPCIONES_IMAGENES.md
+
+# Secretos / entorno
+.env
+media/.env
+
+# Sistema
+.DS_Store
+Thumbs.db
+.claude/

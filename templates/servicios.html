@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Servicios{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container reveal">
+    <p class="eyebrow eyebrow--gold">{{ t('services.eyebrow') }}</p>
+    <h1>{{ t('services.title') }}</h1>
+    <p class="page-head__lead">{{ t('services.lead') }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="service-list">
+      {% for s in servicios %}
+      <article class="service reveal">
+        <div class="service__media">
+          {% if s['imagen'] %}
+            <!-- IMAGEN del servicio: foto del vehículo, 800x600px, fondo neutro -->
+            <img src="{{ url_for('media', filename=s['imagen']) }}" alt="{{ s['nombre'] }}" loading="lazy"
+                 onerror="this.parentElement.classList.add('card__media--empty');this.remove();" />
+          {% else %}
+            <span class="card__placeholder">Foto del vehículo</span>
+          {% endif %}
+        </div>
+        <div class="service__body">
+          <h2>{{ s['nombre'] }}</h2>
+          <p class="service__desc">{{ s['descripcion'] }}</p>
+          <ul class="service__specs">
+            <li><strong>{{ t('services.capacity') }}:</strong> {{ s['capacidad_min'] }}–{{ s['capacidad_max'] }} {{ t('common.passengers') }}</li>
+            <li><strong>{{ t('services.luggage') }}:</strong> {{ t('services.up_to') }} {{ s['max_maletas'] }} {{ t('services.suitcases') }}</li>
+            <li><strong>{{ t('services.ideal_for') }}:</strong> {{ s['ideal_para'] }}</li>
+          </ul>
+          <a class="btn btn--gold" href="{{ url_for('reservar', servicio=s['id']) }}">{{ t('common.book_name') }} {{ s['nombre'].split('(')[0] }}</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

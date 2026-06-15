@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <!-- IMAGEN: foto panorámica de vehículo ejecutivo/van negra en una carretera o
+       skyline de Medellín al atardecer, alta calidad, 1920x900px.
+       Reemplaza el archivo media/hero.jpg para verla aquí. -->
+  <div class="hero__bg" style="background-image:url('{{ url_for('media', filename='hero.jpg') }}')"></div>
+  <div class="hero__overlay"></div>
+  <div class="container hero__content reveal">
+    <p class="hero__eyebrow">{{ NEGOCIO.ciudad }}</p>
+    <h1 class="hero__title">{{ t('hero.title_a') }} <span class="gold">VIP</span> {{ t('hero.title_b') }}</h1>
+    <p class="hero__sub">{{ t('hero.sub') }}</p>
+    <div class="hero__actions">
+      <a class="btn btn--gold btn--lg btn--icon-end" href="{{ url_for('reservar') }}">
+        {{ t('hero.book_now') }}
+        <span class="btn__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+      <a class="btn btn--ghost btn--lg" href="{{ url_for('servicios') }}">{{ t('hero.see_services') }}</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS DESTACADOS -->
+<section class="section">
+  <div class="container">
+    <header class="section__head reveal">
+      <p class="eyebrow">{{ t('home.fleet_eyebrow') }}</p>
+      <h2>{{ t('home.featured') }}</h2>
+      <p class="section__lead">{{ t('home.featured_lead') }}</p>
+    </header>
+    <div class="cards">
+      {% for s in servicios %}
+      <article class="card reveal">
+        <div class="card__core">
+          <div class="card__media">
+            {% if s['imagen'] %}
+              <!-- IMAGEN del servicio: foto 3/4 frontal del vehículo, fondo neutro, 800x600px -->
+              <img src="{{ url_for('media', filename=s['imagen']) }}" alt="{{ s['nombre'] }}" loading="lazy"
+                   onerror="this.parentElement.classList.add('card__media--empty');this.remove();" />
+            {% else %}
+              <span class="card__placeholder">Foto del vehículo</span>
+            {% endif %}
+          </div>
+          <div class="card__body">
+            <h3>{{ s['nombre'] }}</h3>
+            <p>{{ s['descripcion'] }}</p>
+            <p class="card__meta">{{ s['capacidad_min'] }}–{{ s['capacidad_max'] }} {{ t('common.passengers') }} · {{ s['ideal_para'] }}</p>
+            <a class="btn btn--dark" href="{{ url_for('reservar', servicio=s['id']) }}">{{ t('common.book') }}</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- POR QUÉ ELEGIRNOS -->
+<section class="section section--green">
+  <div class="container">
+    <header class="section__head reveal">
+      <p class="eyebrow eyebrow--gold">{{ t('home.diff_eyebrow') }}</p>
+      <h2 class="on-dark">{{ t('home.why') }}</h2>
+    </header>
+    <div class="features">
+      {% for i in range(1, 7) %}
+      <div class="feature reveal">
+        <div class="feature__icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/>
+          </svg>
+        </div>
+        <h3>{{ t('feat.' ~ i ~ '.t') }}</h3>
+        <p>{{ t('feat.' ~ i ~ '.d') }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-band">
+  <div class="container cta-band__inner reveal">
+    <div>
+      <h2>{{ t('cta.title') }}</h2>
+      <p>{{ t('cta.text') }}</p>
+    </div>
+    <a class="btn btn--gold btn--lg" href="{{ url_for('reservar') }}">{{ t('hero.book_now') }}</a>
+  </div>
+</section>
+{% endblock %}

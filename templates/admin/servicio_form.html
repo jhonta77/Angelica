@@ -1,0 +1,69 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'servicios' %}
+{% block title %}{{ 'Editar' if servicio else 'Nuevo' }} servicio{% endblock %}
+{% block admin_title %}{{ 'Editar servicio' if servicio else 'Nuevo servicio' }}{% endblock %}
+
+{% block admin_content %}
+<form class="svc-form" method="post" enctype="multipart/form-data"
+      action="{{ url_for('admin_servicio_editar', sid=servicio['id']) if servicio else url_for('admin_servicio_nuevo') }}">
+
+  <div class="grid grid--2">
+    <label class="field field--full">
+      <span>Nombre *</span>
+      <input type="text" name="nombre" required value="{{ servicio['nombre'] if servicio else '' }}" />
+    </label>
+
+    <label class="field field--full">
+      <span>Descripción</span>
+      <textarea name="descripcion" rows="3">{{ servicio['descripcion'] if servicio else '' }}</textarea>
+    </label>
+
+    <label class="field field--full">
+      <span>Ideal para</span>
+      <input type="text" name="ideal_para" value="{{ servicio['ideal_para'] if servicio else '' }}"
+             placeholder="Ej. Familias, aeropuerto" />
+    </label>
+
+    <label class="field">
+      <span>Capacidad mínima</span>
+      <input type="number" name="capacidad_min" min="1" value="{{ servicio['capacidad_min'] if servicio else 1 }}" />
+    </label>
+    <label class="field">
+      <span>Capacidad máxima</span>
+      <input type="number" name="capacidad_max" min="1" value="{{ servicio['capacidad_max'] if servicio else 4 }}" />
+    </label>
+    <label class="field">
+      <span>Máx. maletas</span>
+      <input type="number" name="max_maletas" min="0" value="{{ servicio['max_maletas'] if servicio else 3 }}" />
+    </label>
+    <label class="field">
+      <span>Orden de aparición</span>
+      <input type="number" name="orden" value="{{ servicio['orden'] if servicio else 0 }}" />
+    </label>
+
+    <label class="field field--full">
+      <span>Imagen del vehículo</span>
+      <input type="hidden" name="imagen_actual" value="{{ servicio['imagen'] if servicio else '' }}" />
+      {% if servicio and servicio['imagen'] %}
+        <div class="svc-form__preview">
+          <img src="{{ url_for('media', filename=servicio['imagen']) }}" alt="Imagen actual"
+               onerror="this.style.display='none'" />
+          <span class="muted">Actual: {{ servicio['imagen'] }}</span>
+        </div>
+      {% endif %}
+      <input type="file" name="imagen" accept="image/png,image/jpeg,image/webp" />
+      <small class="field__hint">Se guarda en la carpeta <code>media/</code>. Recomendado 800×600px. Deja vacío para conservar la actual.</small>
+    </label>
+
+    <label class="check field--full">
+      <input type="checkbox" name="activo" {% if (servicio and servicio['activo']) or not servicio %}checked{% endif %} />
+      <span>Servicio activo (visible en el sitio)</span>
+    </label>
+  </div>
+
+  <div class="svc-form__actions">
+    <button type="submit" class="btn btn--gold">{{ 'Guardar cambios' if servicio else 'Crear servicio' }}</button>
+    <a class="btn btn--ghost-dark" href="{{ url_for('admin_servicios') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
