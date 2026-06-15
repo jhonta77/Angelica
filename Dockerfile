@@ -2,6 +2,8 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV DATABASE=/app/data/angelica.db
+ENV MEDIA_DIR=/app/media
 
 WORKDIR /app
 
@@ -12,6 +14,6 @@ COPY . .
 
 RUN mkdir -p /app/data /app/media
 
-EXPOSE 5000
+EXPOSE 80
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "2", "app:app"]

@@ -1,0 +1,10 @@
+.git
+.claude
+.env
+media/.env
+venv
+.venv
+__pycache__
+*.pyc
+*.db
+angelica.db
