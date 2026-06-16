@@ -30,25 +30,35 @@ con selector de idioma en la barra de navegación y botón de inicio de sesión.
 > con certificado SSL). Si hay llave de Maps, las coordenadas se convierten en
 > dirección legible con una sola llamada.
 
-## 🚀 Cómo ejecutarlo en local
+## 🚀 Cómo ejecutarlo en local (desde cero)
+
+Requisito previo: tener **Python 3.10+** instalado.
 
 ```powershell
-# 1. Entorno virtual (ya creado en venv/)
-venv\Scripts\activate
+# 1. Crear el entorno virtual
+python -m venv venv
 
-# 2. Instalar dependencias (solo la primera vez)
+# 2. Activarlo  (Windows PowerShell)
+venv\Scripts\activate
+#   En Mac/Linux:  source venv/bin/activate
+
+# 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 3. Crear tablas y cargar datos de ejemplo (solo la primera vez)
-python -c "import app"      # crea la base de datos angelica.db
-python seed.py              # carga los 4 servicios del brief
+# 4. Crear tu configuración a partir de la plantilla y editarla
+copy .env.example .env       # Mac/Linux:  cp .env.example .env
+#   abre .env y pon tu usuario/clave de admin y demás datos
 
-# 4. Arrancar
+# 5. Crear las tablas y cargar datos de ejemplo (solo la primera vez)
+python -c "import app"       # crea la base de datos angelica.db
+python seed.py               # carga los 4 servicios y ubicaciones de ejemplo
+
+# 6. Arrancar
 python app.py
 ```
 
-Abrir: http://127.0.0.1:5000
-Panel: http://127.0.0.1:5000/admin
+Abrir en el navegador: **http://127.0.0.1:5000**
+Panel admin: **http://127.0.0.1:5000/admin** (usa el usuario/clave que pusiste en `.env`)
 
 ## ⚙️ Configuración
 
